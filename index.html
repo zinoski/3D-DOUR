@@ -30,9 +30,21 @@
       border-bottom:1px solid var(--border);
     }
     .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-    .logo img{height:36px;width:auto;mix-blend-mode:screen;filter:brightness(1.2) contrast(1.1)}
-    .logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.3px}
+    .logo-cube{
+      width:36px;height:36px;flex-shrink:0;
+      background:linear-gradient(135deg,#1e90ff 0%,#0060c0 100%);
+      border-radius:7px;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 16px rgba(0,140,255,.4);
+      position:relative;overflow:hidden;
+    }
+    .logo-cube::before{
+      content:'';position:absolute;top:0;left:0;right:0;bottom:50%;
+      background:rgba(255,255,255,.15);
+    }
+    .logo-cube svg{position:relative;z-index:1}
+    .logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.3px;line-height:1}
     .logo-text span{color:var(--c)}
+    .logo-sub{font-size:8px;color:var(--text);letter-spacing:.12em;font-weight:500;margin-top:1px}
     .nav-links{display:flex;gap:28px}
     .nav-links a{font-size:13px;color:var(--text);text-decoration:none;transition:color .2s;font-weight:500}
     .nav-links a:hover{color:#fff}
@@ -334,7 +346,8 @@
     footer{background:#030710;border-top:1px solid var(--border);padding:60px 32px 32px}
     .footer-in{max-width:1200px;margin:0 auto}
     .footer-top{display:flex;flex-wrap:wrap;gap:48px;justify-content:space-between;padding-bottom:40px;border-bottom:1px solid var(--border);margin-bottom:28px}
-    .footer-brand img{height:52px;width:auto;mix-blend-mode:screen;filter:brightness(1.15);display:block;margin-bottom:14px}
+    .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .footer-logo .logo-cube{width:40px;height:40px;border-radius:8px}
     .footer-brand p{font-size:13px;color:var(--text);max-width:240px;line-height:1.7}
     .footer-col h5{font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.25);margin-bottom:18px;font-weight:600}
     .footer-col a{display:block;font-size:13px;color:var(--text);text-decoration:none;margin-bottom:10px;transition:color .2s}
@@ -354,8 +367,17 @@
 <!-- NAV -->
 <nav>
   <a class="logo" href="#">
-    <img src="logo.jpg" alt="3D Dour"/>
-    <span class="logo-text">3D <span>Dour</span></span>
+    <div class="logo-cube">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" fill="rgba(255,255,255,0.9)"/>
+        <path d="M2 17l10 5 10-5" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" fill="none"/>
+        <path d="M2 12l10 5 10-5" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">3D <span>DOUR</span></div>
+      <div class="logo-sub">DONNEZ VIE À VOS LIEUX</div>
+    </div>
   </a>
   <div class="nav-links">
     <a href="#portfolio">Portfolio</a>
@@ -370,7 +392,7 @@
   <div class="hero-grid"></div>
   <div class="hero-inner">
     <div class="hero-chip"><i></i> MATTERPORT 3D · ALGÉRIE</div>
-    <h1>Donnez <em>vie</em><br>à vos lieux</h1>
+    <h1>Donnez <em>vie</em><br>à vos <em>lieux</em></h1>
     <p>Des visites virtuelles immersives qui attirent, convainquent et convertissent — pour l'immobilier, le commerce et l'entreprise.</p>
     <div class="hero-btns">
       <a class="btn-fill" href="#portfolio">
@@ -558,7 +580,19 @@
   <div class="footer-in">
     <div class="footer-top">
       <div class="footer-brand">
-        <img src="logo.jpg" alt="3D Dour"/>
+        <div class="footer-logo">
+          <div class="logo-cube">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" fill="rgba(255,255,255,0.9)"/>
+              <path d="M2 17l10 5 10-5" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" fill="none"/>
+              <path d="M2 12l10 5 10-5" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="logo-text">3D <span>DOUR</span></div>
+            <div class="logo-sub">DONNEZ VIE À VOS LIEUX</div>
+          </div>
+        </div>
         <p>Spécialistes de la visite virtuelle Matterport en Algérie. Donnez vie à vos lieux.</p>
       </div>
       <div class="footer-col">
