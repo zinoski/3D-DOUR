@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio 3D — Visites Virtuelles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #060d1a;
+      color: white;
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 64px;
+      background: rgba(6,13,26,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px;
+      color: white; text-decoration: none; display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo span { color: #00D4FF; }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border-radius: 8px;
+      background: #00D4FF; color: #071F3E;
+      font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+      text-decoration: none; letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── SECTION ── */
+    section {
+      padding: 120px 0 100px;
+      max-width: 1200px; margin: 0 auto; padding-left: 24px; padding-right: 24px;
+    }
+
+    .label {
+      font-size: 10px; color: #0185D2; letter-spacing: 3px; margin-bottom: 12px;
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(28px, 4vw, 44px); color: white;
+    }
+    .title span { color: #00D4FF; }
+
+    .header-row {
+      display: flex; flex-wrap: wrap; align-items: flex-end;
+      justify-content: space-between; gap: 20px; margin-bottom: 40px;
+    }
+
+    /* ── FILTERS ── */
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      padding: 7px 16px; border-radius: 20px; cursor: pointer;
+      transition: all 0.2s; min-height: 36px; border: 1px solid rgba(255,255,255,0.12);
+      background: transparent; color: rgba(255,255,255,0.5);
+    }
+    .filter-btn.active {
+      background: #00D4FF; color: #071F3E;
+      border-color: #00D4FF; font-weight: 700;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 20px;
+    }
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .card:hover {
+      border-color: rgba(0,212,255,0.4);
+      transform: translateY(-4px);
+    }
+
+    .card-thumb {
+      height: 200px; position: relative; overflow: hidden;
+      background: #0d1e35;
+    }
+    .card-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .card:hover .card-thumb img { transform: scale(1.04); }
+
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(7,31,62,0.9) 100%);
+    }
+
+    .badge {
+      position: absolute; top: 12px;
+      font-family: 'DM Mono', monospace; font-size: 9px;
+      letter-spacing: 0.12em;
+      background: rgba(7,31,62,0.75);
+      padding: 3px 10px; border-radius: 4px;
+    }
+    .badge-cat { left: 12px; color: #00D4FF; border: 1px solid rgba(0,212,255,0.25); }
+    .badge-mat { right: 12px; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+
+    .play-btn {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .card:hover .play-btn { opacity: 1; }
+    .play-circle {
+      width: 44px; height: 44px; border-radius: 50%; background: #00D4FF;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 24px rgba(0,212,255,0.5);
+    }
+
+    .card-body { padding: 16px 20px; }
+    .card-title {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+      color: white; margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .card-cta {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; color: rgba(0,212,255,0.5);
+      letter-spacing: 0.05em; transition: color 0.25s;
+    }
+    .card:hover .card-cta { color: #00D4FF; }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      align-items: center; justify-content: center; padding: 16px;
+      background: rgba(0,0,0,0.92);
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      position: relative; width: 100%; max-width: 960px;
+      background: #071F3E;
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .modal-cat {
+      font-size: 9px; color: #00D4FF; letter-spacing: 0.18em; margin-bottom: 4px;
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: white;
+    }
+    .modal-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+    .btn-fullscreen {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.45); background: transparent;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      text-decoration: none; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-fullscreen:hover { color: white; border-color: rgba(255,255,255,0.25); }
+
+    .btn-close {
+      width: 44px; height: 44px; border-radius: 10px;
+      border: none; background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.7); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; transition: background 0.2s;
+    }
+    .btn-close:hover { background: rgba(255,255,255,0.12); }
+
+    .modal-iframe-wrap {
+      position: relative; width: 100%; padding-bottom: 56.25%;
+    }
+    .modal-iframe-wrap iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+    }
+
+    .modal-footer {
+      padding: 14px 24px; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .modal-footer p { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+    /* ── OFFRES ── */
+    .offres-section {
+      background: #071525;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .offres-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 100px 24px;
+    }
+    .offres-subtitle {
+      font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.7;
+      max-width: 620px; margin-bottom: 56px;
+    }
+    .packs-grid {
+      display: grid; grid-template-columns: 1fr; gap: 20px;
+    }
+    @media (min-width: 768px) { .packs-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .pack-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 28px 24px;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .pack-card:hover {
+      border-color: rgba(0,212,255,0.35);
+      transform: translateY(-4px);
+    }
+    .pack-name {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
+      color: #00D4FF; margin-bottom: 6px; letter-spacing: 0.04em;
+    }
+    .pack-target {
+      font-size: 10px; color: rgba(255,255,255,0.35);
+      margin-bottom: 20px; line-height: 1.5;
+    }
+    .pack-divider {
+      height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 20px;
+    }
+    .pack-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .pack-features li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.5;
+    }
+    .pack-features li::before {
+      content: "✓"; color: #00D4FF; font-weight: 700;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    .options-block {
+      margin-top: 48px;
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 16px; padding: 28px 28px;
+    }
+    .options-title {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+      color: white; margin-bottom: 16px;
+    }
+    .options-list { display: flex; flex-direction: column; gap: 10px; }
+    .options-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.5; list-style: none;
+    }
+    .options-list li::before {
+      content: "+"; color: #00D4FF; font-weight: 700; flex-shrink: 0;
+    }
+    .option-name { color: white; font-weight: 500; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 40px 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 11px; color: rgba(255,255,255,0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a class="nav-logo" href="#">Visites <span>Virtuelles</span></a>
+    <a class="nav-cta" href="mailto:contact@votresite.fr">Nous contacter</a>
+  </nav>
+
+  <!-- PORTFOLIO -->
+  <section>
+    <p class="label">— NOS RÉALISATIONS</p>
+
+    <div class="header-row">
+      <h2 class="title">Portfolio <span>3D</span></h2>
+      <div class="filters" id="filters"></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <p class="modal-cat" id="modal-cat"></p>
+          <h3 class="modal-title" id="modal-title"></h3>
+        </div>
+        <div class="modal-actions">
+          <a class="btn-fullscreen" id="modal-link" target="_blank" rel="noopener noreferrer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Plein écran
+          </a>
+          <button class="btn-close" id="modal-close">✕</button>
+        </div>
+      </div>
+      <div class="modal-iframe-wrap">
+        <iframe id="modal-iframe" allowfullscreen allow="xr-spatial-tracking; gyroscope; accelerometer" title="Visite 3D"></iframe>
+      </div>
+      <div class="modal-footer">
+        <p id="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFRES -->
+  <div class="offres-section">
+    <div class="offres-inner">
+      <p class="label">— NOS OFFRES</p>
+      <h2 class="title" style="margin-bottom: 16px;">Nos <span>Packs</span></h2>
+      <p class="offres-subtitle">Optimisez votre visibilité et transformez l'expérience de vos clients grâce à nos solutions immersives Matterport et Google Maps.</p>
+
+      <div class="packs-grid">
+
+        <div class="pack-card">
+          <p class="pack-name">PACK COMMERCE</p>
+          <p class="pack-target">Showrooms, Magasins, Restaurants, Salles de sport.</p>
+          <div class="pack-divider"></div>
+          <ul class="pack-features">
+            <li>Numérisation Matterport 3D</li>
+            <li>Intégration Google Street View</li>
+            <li>Optimisation de la fiche Google Business</li>
+            <li>5 Tags d'information (liens produits / menu)</li>
+          </ul>
+        </div>
+
+        <div class="pack-card">
+          <p class="pack-name">PACK IMMOBILIER</p>
+          <p class="pack-target">Agences immobilières, Promoteurs, Appartements témoins.</p>
+          <div class="pack-divider"></div>
+          <ul class="pack-features">
+            <li>Visite virtuelle haute définition</li>
+            <li>Mode "Dollhouse" (vue 3D globale)</li>
+            <li>Génération automatique de plans 2D</li>
+            <li>Export de photos HD pour annonces</li>
+          </ul>
+        </div>
+
+        <div class="pack-card">
+          <p class="pack-name">PACK ENTREPRISE</p>
+          <p class="pack-target">Bureaux, Sites industriels, Espaces de coworking.</p>
+          <div class="pack-divider"></div>
+          <ul class="pack-features">
+            <li>Scan intégral des grands volumes</li>
+            <li>Menu de navigation personnalisé</li>
+            <li>Intégration de vidéos de présentation internes</li>
+            <li>Lien de partage privé ou public sécurisé</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="options-block">
+        <p class="options-title">Options Complémentaires</p>
+        <ul class="options-list">
+          <li><span><span class="option-name">UGC Marketing</span> — Création de contenus vidéos format vertical pour réseaux sociaux.</span></li>
+          <li><span><span class="option-name">Mise à jour annuelle</span> — Réactualisation du scan après travaux ou changement de collection.</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Visites Virtuelles — Toutes les visites sont propulsées par Matterport 3D</p>
+  </footer>
+
+  <script>
+    const projects = [
+      { title: "Promotion Immobilière", category: "Immobilier",   id: "2RuVz2Qs1xV", description: "Visite 3D immersive d'un bien résidentiel — convaincre les acheteurs à distance et accélérer les ventes." },
+      { title: "Salle de Sport",        category: "Sport",        id: "EUVVNiVPABq", description: "Présentez vos équipements et espaces en 3D pour attirer de nouveaux adhérents en ligne." },
+      { title: "Location de Voiture",   category: "Automobile",   id: "i7JBJqPAnsE", description: "Faites visiter votre agence et votre flotte en ligne, disponible 24h/24." },
+      { title: "Cabinet Médical",       category: "Médical",      id: "ood362gsK3s", description: "Rassurez vos patients avant leur première visite grâce à une présentation 3D professionnelle." },
+      { title: "Restaurant",            category: "Restauration", id: "ywicUeufuWG", description: "Faites vivre l'ambiance de votre restaurant en ligne et donnez envie de réserver une table." },
+      { title: "Showroom Moto",         category: "Automobile",   id: "H7KnxXgZkC2", description: "Explorez chaque modèle exposé comme si vous y étiez — une expérience d'achat unique." },
+      { title: "Salon d'Esthétique",    category: "Beauté",       id: "JyLEjibe1Yk", description: "Mettez en valeur l'ambiance de votre salon pour séduire une clientèle exigeante." },
+    ];
+
+    const filters = ["Tous", "Immobilier", "Sport", "Automobile", "Médical", "Restauration", "Beauté"];
+    let active = "Tous";
+
+    // Render filters
+    const filtersEl = document.getElementById("filters");
+    filters.forEach(f => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn" + (f === active ? " active" : "");
+      btn.textContent = f;
+      btn.onclick = () => {
+        active = f;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderGrid();
+      };
+      filtersEl.appendChild(btn);
+    });
+
+    // Render cards
+    function renderGrid() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      const list = active === "Tous" ? projects : projects.filter(p => p.category === active);
+      list.forEach(p => {
+        grid.innerHTML += `
+          <div class="card" onclick="openModal('${p.id}','${p.title}','${p.category}','${p.description.replace(/'/g, "\\'")}')">
+            <div class="card-thumb">
+              <img src="https://my.matterport.com/api/v1/player/models/${p.id}/thumb" alt="${p.title}" loading="lazy" />
+              <div class="card-overlay"></div>
+              <span class="badge badge-cat">${p.category.toUpperCase()}</span>
+              <span class="badge badge-mat">MATTERPORT 3D</span>
+              <div class="play-btn">
+                <div class="play-circle">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="#071F3E"><polygon points="3,1 13,7 3,13"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">${p.title}</h3>
+              <p class="card-desc">${p.description}</p>
+              <div class="card-cta">Explorer la visite <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+          </div>`;
+      });
+    }
+
+    // Modal
+    function openModal(id, title, cat, desc) {
+      document.getElementById("modal-cat").textContent = cat.toUpperCase() + " · MATTERPORT 3D";
+      document.getElementById("modal-title").textContent = title;
+      document.getElementById("modal-desc").textContent = desc;
+      document.getElementById("modal-iframe").src = `https://my.matterport.com/show/?m=${id}&play=1`;
+      document.getElementById("modal-link").href = `https://my.matterport.com/show/?m=${id}`;
+      document.getElementById("modal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      document.getElementById("modal").classList.remove("open");
+      document.getElementById("modal-iframe").src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("modal-close").onclick = closeModal;
+    document.getElementById("modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+    renderGrid();
+  </script>
+</body>
+</html>
